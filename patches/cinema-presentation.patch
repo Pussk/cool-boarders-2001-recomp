@@ -1,0 +1,21 @@
+diff --git a/runtime/src/gpu_gl_renderer.c b/runtime/src/gpu_gl_renderer.c
+index 1767ac1..d23f474 100644
+--- a/runtime/src/gpu_gl_renderer.c
++++ b/runtime/src/gpu_gl_renderer.c
+@@ -5667,6 +5667,16 @@ float gl_renderer_get_post_gamma(void) {
+ /* Letterbox: largest num:den rect centered in the drawable. */
+ static void letterbox_rect_aspect(int ww, int wh, int num, int den,
+                                   int *x, int *y, int *w, int *h) {
++    /* Optional title presentation mode: full width with horizontal cinema
++     * bars. This changes only the output rectangle, never guest geometry. */
++    const char *cinema = getenv("COOLBOARDERS_CINEMA");
++    if (cinema && cinema[0] == '1') {
++        int dh = ww / 2;
++        if (dh > wh * 9 / 10) dh = wh * 9 / 10;
++        if (dh < 1) dh = 1;
++        *x = 0; *y = (wh - dh) / 2; *w = ww; *h = dh;
++        return;
++    }
+     int dw = ww, dh = (ww * den) / num;
+     if (dh > wh) { dh = wh; dw = (wh * num) / den; }
+     *x = (ww - dw) / 2;

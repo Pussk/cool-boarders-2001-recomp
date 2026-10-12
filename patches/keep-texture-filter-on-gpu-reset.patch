@@ -1,0 +1,16 @@
+diff --git a/runtime/src/gpu.c b/runtime/src/gpu.c
+index 8101a9e..f22a790 100644
+--- a/runtime/src/gpu.c
++++ b/runtime/src/gpu.c
+@@ -3794,7 +3794,11 @@ static void gpu_reset_state(int clear_vram) {
+         memset(vram, 0, sizeof(vram));
+         gpu_vram_dirty_mark_all();
+     }
++    /* Texture filtering is a host preference, not GP1 state. Keep it when
++     * the guest resets its GPU (including the BIOS/title startup resets). */
++    const int host_texture_filter = gr_texture_filter();
+     gr_init(vram);
++    gr_set_texture_filter(host_texture_filter);
+ 
+     /* Reset GP0 state machine (+ leftover cmd/xfer crumbs that survive in
+      * gpu_snapshot and fork av digests on rematch). */

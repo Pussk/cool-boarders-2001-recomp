@@ -38,15 +38,25 @@ discovery = "reachable"
 [runtime]
 window_title = "Cool Boarders 2001 Recompiled"
 memcard_dir = "saves"
+fast_boot = false
+bios_hle_keep_intro = true
 overlay_cache = true
 overlay_region_floor = "0x10000"
 
 [video]
-renderer = "software"
-aspect_ratio = "4:3"
+renderer = "opengl"
+aspect_ratio = "16:9"
+# GPU rendering: 2x internal resolution, bilinear textures, original colours.
+antialiasing = true
+antialiasing_mode = "fxaa_hq"
+supersampling = 4
+crt_filter = "raw"
+texture_filtering = "bilinear"
 
 [controller]
 default_mode = "digital"
+p1_device = "0300fa675e040000ff02000000007801"
+p2_device = "none"
 
 # Online mount gate: digests + track count + optional TOC fingerprint
 # (see docs/NETPLAY.md).

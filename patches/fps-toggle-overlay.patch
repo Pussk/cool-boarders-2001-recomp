@@ -1,0 +1,65 @@
+diff --git a/runtime/src/host_osd.c b/runtime/src/host_osd.c
+index 7a662b7..55e2bfd 100644
+--- a/runtime/src/host_osd.c
++++ b/runtime/src/host_osd.c
+@@ -1,7 +1,6 @@
+ /* host_osd.c — top-left toast messages for host hotkeys / savestate results.
+  *
+- * Visual OSD is gated on RECOMP_LAUNCHER (recomp-ui bundled). Volume state
+- * remains available for headless / launcher-less builds. */
++ * Visual OSD is available in SDL builds, including launcher-less games. */
+ 
+ #include "host_osd.h"
+ #include "psx_rewind.h"
+@@ -11,7 +10,7 @@
+ #include <stdio.h>
+ #include <string.h>
+ 
+-#if defined(RECOMP_LAUNCHER)
++#if !defined(PSX_SDL_NO_RENDER)
+ #define HOST_OSD_VISUAL 1
+ #else
+ #define HOST_OSD_VISUAL 0
+@@ -505,9 +504,13 @@ void host_osd_draw_sdl(struct SDL_Renderer *renderer) {
+         if (ui < 1) ui = 1;
+         if (ui > 8) ui = 8;
+         margin = 8 * ui;
+-        if (host_osd_image(&px, &w, &h) && px)
++        if (host_osd_image(&px, &w, &h) && px) {
++            int x = margin;
++            if (s_status_active && !msg_visible() && lw > w * ui + margin)
++                x = lw - w * ui - margin;
+             sdl_blit_argb(renderer, &s_sdl_tex, &s_sdl_tw, &s_sdl_th, px, w, h,
+-                          margin, margin, w * ui, h * ui);
++                          x, margin, w * ui, h * ui);
++        }
+         if (host_osd_volume_image(&px, &w, &h) && px) {
+             const int dw = w * ui, dh = h * ui;
+             int x = (lw > dw + margin) ? (lw - dw - margin) : margin;
+diff --git a/runtime/src/main.cpp b/runtime/src/main.cpp
+index cf33df2..7ad427e 100644
+--- a/runtime/src/main.cpp
++++ b/runtime/src/main.cpp
+@@ -8240,6 +8240,10 @@ static bool drain_host_events() {
+                 host_osd_push("Capture mark needs a debug-tools build", 2000);
+ #endif
+             }
++            else if (!key_repeat && key == SDLK_p &&
++                     !(mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI))) {
++                fps_telemetry_toggle();
++            }
+             else if (!key_repeat &&
+                      host_keymap_match_event(HOST_KEYMAP_DISPLAY_PERF,
+                                              (int)key, (int)scancode,
+@@ -16141,7 +16145,11 @@ int main(int argc, char** argv) {
+      * game.toml offer flags remain parseable for old projects but deliberately
+      * cannot expose generic launcher controls or activate the features. Trusted
+      * activation plugins apply them after launcher/settings resolution. */
++#ifdef COOLBOARDERS_EXPERIMENTAL_WIDESCREEN
++    constexpr bool ws_offered = true;
++#else
+     constexpr bool ws_offered = false;
++#endif
+     constexpr bool ws_ultrawide_offered = false;
+     constexpr bool frame_interpolation_offered = false;
+     constexpr bool skip_fmv_offered = false;

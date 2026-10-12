@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.20)
+project(ControllerProbe LANGUAGES CXX)
+find_package(SDL3 CONFIG REQUIRED)
+add_executable(controller-probe main.cpp)
+target_link_libraries(controller-probe PRIVATE SDL3::SDL3)

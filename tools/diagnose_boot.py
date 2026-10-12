@@ -11,22 +11,27 @@ sys.path.insert(0, str(root / "psxrecomp/tools"))
 from debug_client import query
 
 port = 19497
-args = [str(root / "build/Cool_Boarders_2001_Recompiled.exe"),
+args = [str(root / "build/coolboard2001.exe"),
         "--game", str(root / "game.toml"), "--disc", str(root / "disc/coolboarders2001.cue"),
         "--bios", str(root / "psxrecomp/bios/openbios.bin"), "--headless",
         "--debug-port", str(port), "--memcard-dir", str(root / "analysis/smoke-saves")]
 (root / "analysis").mkdir(exist_ok=True)
 results = []
 parser = argparse.ArgumentParser()
+parser.add_argument("--bios")
+parser.add_argument("--renderer", default="software")
+parser.add_argument("--config")
 parser.add_argument("--advance", action="store_true")
 parser.add_argument("--samples", type=int, default=3)
 parser.add_argument("--race", action="store_true")
 parser.add_argument("--reference", action="store_true")
 parser.add_argument("--window-check", action="store_true")
 options = parser.parse_args()
+if options.config: args[args.index("--game") + 1] = options.config
+if options.bios: args[args.index("--bios") + 1] = options.bios
 if options.window_check:
     args[args.index("--headless")] = "--hidden-window"
-    args.extend(["--renderer", "software"])
+    args.extend(["--renderer", options.renderer])
 with (root / "analysis/diagnostic_boot.log").open("wb") as log:
     process = subprocess.Popen(args, cwd=root, stdout=log, stderr=subprocess.STDOUT)
     try:
@@ -59,7 +64,7 @@ with (root / "analysis/diagnostic_boot.log").open("wb") as log:
                 time.sleep(1)
                 results.append({"sample": sample, "command": "pad_status", "response": query("127.0.0.1", port, {"id": 1, "cmd": "pad_status"}, timeout=2)})
                 query("127.0.0.1", port, {"id": 1, "cmd": "clear_input"}, timeout=2)
-            for command in ("ping", "get_registers", "gpu_state", "overlay_loader_status", "autocompile_status"):
+            for command in ("ping", "get_registers", "gpu_state", "video_info", "pad_status", "overlay_loader_status", "autocompile_status"):
                 try:
                     results.append({"sample": sample, "command": command,
                                     "response": query("127.0.0.1", port, {"id": 1, "cmd": command}, timeout=2)})

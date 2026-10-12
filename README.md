@@ -1,120 +1,97 @@
-# Cool Boarders 2001 Recomp — protótipo Windows
+# Cool Boarders 2001 — recomp experimental para Windows
 
-Jogo identificado no disco: **SCUS-94597 (NTSC-U)**. Base: PSXRecomp,
-commit `2a4824fcb897cb635438958f0c8cffb5a27df656`.
+Protótipo de **Cool Boarders 2001, SCUS-94597 (NTSC-U)**, baseado no
+[PSXRecomp](https://github.com/RetroPortingToolKit/psxrecomp), fixado no commit
+`2a4824fcb897cb635438958f0c8cffb5a27df656`.
 
-## Estado
+## Estado atual
 
-- ECM restaurado para BIN: **234.677.856 bytes**, checksum ECM válido.
-- Executável original extraído: `disc/SCUS_945.97`, **500.000 bytes**.
-- Imagem de carga normalizada: **425.984 bytes**; o original foi preservado.
-- Entrada: `0x800EEF70`; carga: `0x800B5800`; texto: `0x67800` bytes.
-- Geração por descoberta alcançável: **45 funções**, **15.529 linhas de C**.
-- Executável nativo compilado: `build/Cool_Boarders_2001_Recompiled.exe`.
-- Boot, controle e menu principal confirmados por captura de imagem.
-- No teste do menu, 127 entradas de módulos dinâmicos estavam registradas,
-  com mais de 1,5 milhão de chamadas nativas; há fallback para interpretação.
-- Áudio, carreira, salvamento e compatibilidade de todas as pistas não validados.
+- Executável local: `build/coolboard2001.exe`, com ícone do PlayStation.
+- OpenGL com resolução interna de 1× a 4×, texturas bilineares e FXAA/FXAA HQ.
+- Menu gráfico com perfis Desempenho, Equilibrado e Qualidade.
+- GameSir G7/XInput e teclado; tecla **P** mostra/esconde FPS e velocidade.
+- BIOS Sony SCPH-1001 v2.2 opcional, com abertura original e áudio.
+- 16:9 usa apresentação Cinema: largura preenchida e barras horizontais.
+  A imagem é alargada para preservar o conteúdo; não é zoom proporcional.
+- Disco, BIOS, saves, capturas e código gerado do jogo permanecem locais.
 
-**Limite conhecido:** o teste automatizado com módulos nativos chegou ao menu,
-mas não confirmou a entrada em Quick Race. Com a execução nativa dos overlays
-desativada, os comandos alcançaram a seleção de snowboarder e a tela de
-carregamento da pista (Hints). A corrida em andamento ainda não foi validada. Isso é uma
-diferença observada que exige investigação; não comprova ainda qual função está
-incorreta. Para comparar localmente: `./play.ps1 -Reference`.
+O usuário confirmou corrida em velocidade normal e melhora do chão com OpenGL.
+4× custa mais desempenho. Todas as pistas, áudio e salvamento ainda não têm
+validação completa. O contador mede quadros de emulação: **1.00x** representa
+velocidade normal, não necessariamente 60 imagens distintas por segundo.
 
-Este é um protótipo. O framework pode interpretar e recompilar código
-carregado dinamicamente; o jogo inteiro ainda não foi recompilado estaticamente.
-A lista inicial de 87 destinos JAL foi mantida em `seeds/ghidra_funcs.txt` como
-referência. A geração usa somente a entrada comprovada em `seeds/boot_entry.txt`
-e segue o fluxo alcançável, evitando varrer dados como instruções.
+## Abrir e configurar
 
-## Executar
+Com os arquivos locais preparados e o executável compilado:
 
-No PowerShell, dentro deste projeto:
+1. Abra **Jogar.cmd** ou **Graficos.cmd**.
+2. Escolha resolução, anti-aliasing, texturas e proporção.
+3. Clique em **Salvar e jogar**. As mudanças valem na próxima inicialização.
 
-```powershell
-./play.ps1
-```
+Equilibrado: OpenGL 2× + FXAA HQ + bilinear. Qualidade: OpenGL 4×.
+Desempenho: software 1×. `Jogar-software.cmd` abre o perfil anterior por CPU.
+O menu salva `game.toml` e atualiza `build/game.toml`; `game.toml.bak` guarda
+as opções anteriores. 16:9/Cinema é experimental, incluindo o HUD e a geometria.
 
-Também é possível abrir `Jogar.cmd` com dois cliques. O atalho usa software
-e o caminho de referência dos overlays para contornar a tela preta observada
-na execução nativa. Para testar os overlays nativos: `./play.ps1 -Native`.
-Essa configuração de compatibilidade ainda usa o boot e o BIOS recompilados,
-mas interpreta os overlays; não é uma recompilação inteiramente estática.
-O arquivo
-`build/game.toml` recebe caminhos locais absolutos para permitir iniciar
-o executável diretamente; `tools/stage_runtime_config.py` refaz esse arquivo.
+O dump usado no desenvolvimento contém uma abertura PARADOX. **B/Circle**
+seleciona NTSC nessa abertura; Menu/Start avança e A/Cross confirma.
+Teclado: S/Circle, Enter/Start e X/Cross. O GUID de controle no `game.toml`
+corresponde ao GameSir G7 do desenvolvimento; outro controle pode exigir ajuste.
 
-O script usa caminhos absolutos para a configuração, disco e OpenBIOS.
-O dump fornecido inclui uma abertura modificada PARADOX, anterior ao jogo.
-Nessa tela, o botão **Circle** escolhe NTSC; depois **Start** avança a abertura
-e **Cross** confirma no menu. Em controles Xbox, Circle corresponde a B e Cross a A.
-Os arquivos do jogo permanecem locais em `disc/`, ignorados pelo Git.
-O CUE foi reconstruído como uma faixa MODE2/2352 para analisar o BIN fornecido;
-a disposição completa das faixas do disco original não foi verificada.
+## Preparar uma instalação
 
-## Reproduzir a compilação
-
-O repositório não inclui disco, BIOS, código gerado do jogo, executáveis ou
-capturas. O código C deve ser regenerado localmente a partir do seu próprio
-disco. Os hashes em `game.toml` identificam exatamente a imagem usada no teste;
-outras revisões, inclusive dumps sem a abertura modificada, não foram validadas.
-
-Clone com `git clone --recurse-submodules <URL-do-repositório>`. Prepare
-seus arquivos locais como `disc/coolboarders2001.bin` e
-`disc/coolboarders2001.cue`. Depois extraia o boot EXE sem sobrescrever
-a configuração de descoberta alcançável:
+Este repositório contém ferramentas e configuração; clonar sozinho não produz
+um jogo pronto. Use seu próprio dump compatível e dependências do framework.
 
 ```powershell
-python psxrecomp/tools/new_project_layout/probe_disc.py disc/coolboarders2001.cue --write-boot-exe disc
+git clone --recurse-submodules https://github.com/Pussk/cool-boarders-2001-recomp.git
+cd cool-boarders-2001-recomp
 ```
 
-Requer Python 3 e a ferramenta cmake-clang-v1 preparada pelo PSXRecomp:
+São necessários Python, Git, CMake/Ninja, compilador C/C++ compatível com o
+framework e suas dependências SDL3. Os scripts usam `--no-toolchain-download`:
+a toolchain precisa estar instalada/configurada previamente.
+
+Prepare localmente `disc/coolboarders2001.bin` e seu CUE. Se estiver em ECM,
+restaure antes para BIN usando UNECM. O desenvolvimento usou uma única faixa
+MODE2/2352, com BIN de 234.677.856 bytes e checksum ECM válido; a disposição
+completa do disco original não foi confirmada. Extraia o boot PS-X EXE como
+`disc/SCUS_945.97` usando o leitor de disco do framework. Em seguida:
 
 ```powershell
-python psxrecomp/psxrecomp_cli.py ensure-toolchain --project-root .
-./build.ps1 -Generate
+powershell -NoProfile -ExecutionPolicy Bypass -File build.ps1 -Generate
 ```
 
-Para apontar outro Python: `./build.ps1 -Generate -Python C:/caminho/python.exe`.
-O framework fica em `psxrecomp/`; para recuperar uma cópia ausente:
+O build aplica automaticamente os patches locais em `patches/`, normaliza o
+EXE, gera C e compila. Os patches mantêm o filtro nos resets da GPU, habilitam
+OSD/FPS sem launcher e adicionam os modos de apresentação deste protótipo.
+O submódulo continua fixado no upstream; as modificações são publicadas como
+patches, sem publicar o código derivado de BIOS/jogo.
+
+Sem BIOS Sony local, `play.ps1` usa OpenBIOS. Para a abertura Sony, coloque um
+dump SCPH-1001 v2.2 em `psxrecomp/bios/SCPH1001.BIN` (SHA-256
+`71af94d1e47a68c11e8fdb9f8368040601514a42a5a399cda48c7d3bff1e99d3`),
+gere seu backend na pasta do framework e compile novamente:
 
 ```powershell
-git clone https://github.com/RetroPortingToolKit/psxrecomp.git psxrecomp
-git -C psxrecomp checkout 2a4824fcb897cb635438958f0c8cffb5a27df656
+cd psxrecomp
+./recompiler/build/psxrecomp-bios.exe --config bios/SCPH1001.toml
+cd ..
+powershell -NoProfile -ExecutionPolicy Bypass -File build.ps1
 ```
 
-Não é necessário um BIOS comercial neste protótipo; o OpenBIOS acompanha o
-framework. Rewind, netplay e launcher estão desativados.
+O local do emissor pode variar conforme a toolchain. Os perfis do framework
+validam o BIOS; não basta renomear outro arquivo. SCPH-5500 japonês foi testado,
+mas não completou a abertura neste protótipo; SCPH-1001 é a opção validada.
 
-## Diagnóstico
+## Limites e licenças
 
-`disc_probe.json`, `disc_inventory.json` e `catalog_identity.json` registram
-identidade, hashes e arquivos ISO9660. `generate.log` e `build.log` guardam
-a geração e a compilação. `tools/smoke_boot.py` faz um boot limitado a 30 s.
-`tools/diagnose_boot.py` consulta o runtime com `PSX_DEBUG_TOOLS=ON` e salva
-estado e imagem, quando disponíveis, em `analysis/`.
+Não é uma recompilação inteiramente estática: são 45 funções geradas na análise
+inicial, com suporte do runtime para código dinâmico. O launcher usa overlays
+no caminho de referência, interpretados, para evitar falhas de compatibilidade
+observadas; `play.ps1 -Native` permite comparar o modo nativo experimental.
+A captura/substituição de texturas HD foi retirada; o projeto usa os filtros.
 
-Para recompilar com diagnóstico, ative a toolchain no PATH e rode:
-
-```powershell
-cmake -S . -B build -DPSX_DEBUG_TOOLS=ON -DPSX_REWIND=OFF
-cmake --build build --parallel 2 --target psx-runtime
-python tools/diagnose_boot.py --advance --samples 10
-```
-
-Evidência visual do menu: `analysis/menu.png`; estado: `analysis/menu_state.json`.
-O piso de overlays foi ajustado para `0x10000` porque o diagnóstico mostrou
-código em execução em `0x800215F8`, abaixo da imagem estática do boot EXE.
-
-Os módulos `FRONTEND.BIN` e `MOVIE.BIN` são candidatos à investigação dos
-carregamentos dinâmicos; suas funções ainda não foram identificadas.
-
-## Origem das ferramentas
-
-PSXRecomp: https://github.com/RetroPortingToolKit/psxrecomp
-
-`tools/unecm.c`: UNECM de Neill Corlett, obtido de
-https://github.com/37712/ECM-Tools, GPL-2.0-or-later conforme cabeçalho do arquivo.
-O decodificador foi compilado localmente com Clang.
+Consulte `THIRD_PARTY_NOTICES.md` e `assets/README.md`. O framework usa PolyForm
+Noncommercial 1.0.0; UNECM usa GPL-2.0-or-later. O símbolo PlayStation é da Sony.
+Nenhum jogo, BIOS proprietário ou executável pronto é distribuído aqui.

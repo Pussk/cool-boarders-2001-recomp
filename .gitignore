@@ -87,3 +87,4 @@ starvation_dump.jsonl
 !/catalog_identity.json
 !/disc_probe.json
 !/.recomp.json
+/game.toml.bak

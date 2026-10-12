@@ -2,6 +2,8 @@ param([switch]$Generate, [string]$Python = "python")
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 $env:CMAKE_BUILD_PARALLEL_LEVEL = "2"
+& $Python tools/apply_runtime_patches.py
+if ($LASTEXITCODE) { throw "Runtime patch application failed" }
 if ($Generate) {
     & $Python tools/normalize_exe.py
     if ($LASTEXITCODE) { throw "EXE normalization failed" }

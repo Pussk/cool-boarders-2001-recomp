@@ -5,7 +5,7 @@ import subprocess
 import time
 
 root = pathlib.Path(__file__).resolve().parent.parent
-args = [str(root / "build/Cool_Boarders_2001_Recompiled.exe"),
+args = [str(root / "build/coolboard2001.exe"),
         "--game", str(root / "game.toml"), "--disc", str(root / "disc/coolboarders2001.cue"),
         "--bios", str(root / "psxrecomp/bios/openbios.bin"), "--headless",
         "--memcard-dir", str(root / "analysis/smoke-saves")]

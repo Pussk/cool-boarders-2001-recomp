@@ -1,0 +1,65 @@
+# Autofilled by tools/new_project_layout/probe_disc.py from your legal dump.
+# Review before shipping. Runtime quirks / overlay seeds still need hand work.
+
+[game]
+name = "Cool Boarders 2001"
+id = "SCUS-94597"
+players = 2
+exe = "disc/normalized/SCUS_945.97"
+disc = "disc/coolboarders2001.cue"
+load_address = "0x800B5800"
+entry_pc = "0x800EEF70"
+text_size = "0x00067800"
+stack_base = "0x801FFFF0"
+
+# Digests are for data Track 01 (first BINARY FILE / TRACK 01).
+[prepare_disc]
+out_dir = "disc"
+bin_name = "coolboarders2001.bin"
+cue_name = "coolboarders2001.cue"
+boot_exe = "SCUS_945.97"
+known_sizes = [234677856]
+known_md5 = [
+  "056c2d127b73b0a1d342fd35166ac5c9",
+]
+known_sha1 = [
+  "1118dbd6f544394a85207e23b006bfe19a4fda09",
+]
+known_crc32 = [
+  "d6a4453b",
+]
+
+[recompiler]
+seeds = "seeds/boot_entry.txt"
+out_dir = "generated"
+strict = true
+discovery = "reachable"
+
+[runtime]
+window_title = "Cool Boarders 2001 Recompiled"
+memcard_dir = "saves"
+fast_boot = false
+bios_hle_keep_intro = true
+overlay_cache = true
+overlay_region_floor = "0x10000"
+
+[video]
+renderer = "software"
+aspect_ratio = "4:3"
+# Performance baseline: native resolution, nearest textures, original colours.
+antialiasing = true
+supersampling = 1
+crt_filter = "raw"
+texture_filtering = "nearest"
+
+[controller]
+default_mode = "digital"
+p1_device = "0300fa675e040000ff02000000007801"
+p2_device = "none"
+
+# Online mount gate: digests + track count + optional TOC fingerprint
+# (see docs/NETPLAY.md).
+[netplay]
+require_cue = true
+required_tracks = 1
+required_disc_fp = "4f4296bb27be5d32181481ac73c731e17824ff5fe2b89322138e535d73c1e627"
