@@ -1,0 +1,31 @@
+{
+  "cue_path": "disc/coolboarders2001.cue",
+  "cue_name": "coolboarders2001.cue",
+  "bin_name": "coolboarders2001.bin",
+  "track_count": 1,
+  "data_track_size": 234677856,
+  "data_track_md5": "056c2d127b73b0a1d342fd35166ac5c9",
+  "data_track_sha1": "1118dbd6f544394a85207e23b006bfe19a4fda09",
+  "data_track_crc32": "d6a4453b",
+  "boot_exe": "SCUS_945.97",
+  "serial": "SCUS-94597",
+  "serial_exe": "SCUS_945.97",
+  "volume_id": "",
+  "display_name": "Cool Boarders 2001",
+  "load_address": "0x800B5800",
+  "entry_pc": "0x800EEF70",
+  "text_size": "0x00067800",
+  "stack_base": "0x801FFFF0",
+  "require_cue": true,
+  "required_disc_fp": "4f4296bb27be5d32181481ac73c731e17824ff5fe2b89322138e535d73c1e627",
+  "boot_exe_sha256": "a0662758af2fd8102825a4a77860bf5722b324e3b0d94317fc4050c24f268ca2",
+  "seed_count": 87,
+  "warnings": [
+    "cue has only 1 TRACK \u2014 Track-01-only dumps fail multi-track netplay/catalog gates; prefer a full Redump cue."
+  ],
+  "notes": [
+    "entry_pc/load_address/text_size/stack_base taken from PS-X EXE header.",
+    "seeds are first-pass boot-EXE JAL targets (+ entry); expect to grow as overlays / runtime paths are discovered.",
+    "required_disc_fp is psxrecomp-toc-v1 (matches runtime DiscIdentity)."
+  ]
+}
